@@ -3,7 +3,7 @@ class Merchant < ApplicationRecord
 
   validates_presence_of(:name)
 
-  def num_items
-    self.items.count
-  end
+  # def num_items
+  #   self.items.count
+  # end
 end
