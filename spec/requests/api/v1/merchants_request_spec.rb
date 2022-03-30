@@ -13,7 +13,7 @@ RSpec.describe "Merchants API" do
     expect(merchants[:data].count).to eq(3)
 
     merchants[:data].each do |merchant|
-      # binding.pry
+
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_an(String)
 
