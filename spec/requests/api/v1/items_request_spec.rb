@@ -34,4 +34,12 @@ RSpec.describe "Items API" do
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
   end
+
+  it "can get item by its id" do
+    merchant = create(:merchant)
+    item = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+
+    get "/api/v1/items/#{item.id}"
+
+  end
 end
