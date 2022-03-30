@@ -95,4 +95,17 @@ RSpec.describe "Items API" do
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq("Changed Name")
   end
+
+  it "can delete an item" do
+    merchant = create(:merchant)
+    item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+
+    expect(Item.count).to eq(1)
+
+    delete "/api/v1/items/#{item.id}"
+
+    expect(response).to be_successful
+    expect(Item.count).to eq(0)
+    expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
 end
