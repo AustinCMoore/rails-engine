@@ -10,4 +10,13 @@ class Api::V1::MerchantsController < ApplicationController
       render :status => 404
     end
   end
+
+  def find
+    merchant = Merchant.search_for(params[:name])
+    if merchant.nil?
+      render json: {data: {error: :null}}
+    else
+      render json: MerchantSerializer.new(merchant)
+    end
+  end
 end
