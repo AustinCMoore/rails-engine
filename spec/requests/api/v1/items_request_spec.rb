@@ -219,15 +219,138 @@ RSpec.describe "Items API" do
     expect(response.status).to eq(404)
   end
 
-  it "finds all items based on search criteria" do
+  it "finds all items based on name" do
     merchant = create(:merchant)
     item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
     item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
     item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
 
-    get "/api/v1/items/find_all"
+    get "/api/v1/items/find_all?name=cat"
 
     expect(response).to be_successful
-    
+
+    items = JSON.parse(response.body, symbolize_names: true)
+
+    expect(items[:data].count).to eq(2)
+    expect(items[:data].first[:id]).to eq(item_3.id.to_s)
+    expect(items[:data].last[:id]).to eq(item_2.id.to_s)
+
+    items[:data].each do |item|
+      expect(item).to have_key(:id)
+      expect(item[:id]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to be_an(Float)
+
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to be_an(Integer)
+    end
+  end
+
+  it "finds all items based on min and max price" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all?max_price=999.99&min_price=1.00"
+
+    expect(response).to be_successful
+
+    items = JSON.parse(response.body, symbolize_names: true)
+
+    expect(items[:data].count).to eq(1)
+    expect(items[:data].first[:id]).to eq(item_3.id.to_s)
+
+    items[:data].each do |item|
+      expect(item).to have_key(:id)
+      expect(item[:id]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to be_an(Float)
+
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to be_an(Integer)
+    end
+  end
+
+  it "finds all items based on min price" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all?min_price=1.00"
+
+    expect(response).to be_successful
+
+    items = JSON.parse(response.body, symbolize_names: true)
+
+    expect(items[:data].count).to eq(2)
+    expect(items[:data].first[:id]).to eq(item_3.id.to_s)
+    expect(items[:data].last[:id]).to eq(item_1.id.to_s)
+
+    items[:data].each do |item|
+      expect(item).to have_key(:id)
+      expect(item[:id]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to be_an(Float)
+
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to be_an(Integer)
+    end
+  end
+
+  it "finds all items based on max price" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all?max_price=999.99"
+
+    expect(response).to be_successful
+
+    items = JSON.parse(response.body, symbolize_names: true)
+
+    expect(items[:data].count).to eq(2)
+    expect(items[:data].first[:id]).to eq(item_3.id.to_s)
+    expect(items[:data].last[:id]).to eq(item_2.id.to_s)
+
+    items[:data].each do |item|
+      expect(item).to have_key(:id)
+      expect(item[:id]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to be_an(String)
+
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to be_an(Float)
+
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to be_an(Integer)
+    end
   end
 end
