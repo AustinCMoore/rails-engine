@@ -61,6 +61,27 @@ RSpec.describe "Items API" do
     expect(item[:data][:attributes][:merchant_id]).to be_an(Integer)
   end
 
+  it "has a 404 error if the merchant id is invalid" do
+    merchant = create(:merchant)
+    item = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = item.id
+    id += 1
+
+    get "/api/v1/items/#{id}"
+
+    expect(response.status).to eq(404)
+  end
+
+  it "has a 404 error if the merchant id is a string" do
+    merchant = create(:merchant)
+    item = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = "one"
+
+    get "/api/v1/items/#{id}"
+
+    expect(response.status).to eq(404)
+  end
+
   it "can create an item" do
     merchant_id = create(:merchant).id
     item_params = ({
@@ -81,7 +102,33 @@ RSpec.describe "Items API" do
     expect(created_item.merchant_id).to eq(item_params[:merchant_id])
   end
 
-  it "can edit an item" do
+  it "has a 404 error if datatypes are incorrect" do
+    merchant_id = create(:merchant).id
+    item_params = ({
+                    name: 99,
+                    description: 98,
+                    unit_price: "one ninety nine",
+                    merchant_id: merchant_id.to_s
+      })
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+    expect(response.status).to eq(404)
+  end
+
+  xit "has a 404 error if attributes are missing" do
+    merchant_id = create(:merchant).id
+    item_params = ({
+      })
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+    expect(response.status).to eq(404)
+  end
+
+  it "can edit an item with partial data" do
     merchant = create(:merchant)
     id = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal).id
     previous_name = Item.last.name
@@ -96,6 +143,45 @@ RSpec.describe "Items API" do
     expect(item.name).to eq("Changed Name")
   end
 
+  it "returns 404 with a bad integer id" do
+    merchant = create(:merchant)
+    id = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal).id
+    previous_name = Item.last.name
+    item_params = { name: "Changed Name" }
+    headers = {"CONTENT_TYPE" => "application/json"}
+    id += 1
+
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+
+    expect(response.status).to eq(404)
+  end
+
+  xit "returns 404 with a bad merchant id" do
+    merchant = create(:merchant)
+    merchant_id = merchant.id + 1
+    id = Item.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal, merchant_id: merchant_id).id
+    # previous_name = Item.last.name
+    item_params = { name: "Changed Name" }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch "/api/v1/items/#{id}"
+
+    expect(response.status).to eq(404)
+  end
+
+  it "returns 404 with a string id" do
+    merchant = create(:merchant)
+    merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal).id
+    previous_name = Item.last.name
+    item_params = { name: "Changed Name" }
+    headers = {"CONTENT_TYPE" => "application/json"}
+    id = "eleven"
+
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+
+    expect(response.status).to eq(404)
+  end
+
   it "can delete an item" do
     merchant = create(:merchant)
     item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
@@ -107,5 +193,29 @@ RSpec.describe "Items API" do
     expect(response).to be_successful
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  it "returns 404 with a bad id" do
+    merchant = create(:merchant)
+    item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = item.id + 1
+    expect(Item.count).to eq(1)
+
+    delete "/api/v1/items/#{id}"
+
+    expect(Item.count).to eq(1)
+    expect(response.status).to eq(404)
+  end
+
+  it "returns 404 with a string id" do
+    merchant = create(:merchant)
+    item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = "eleven"
+    expect(Item.count).to eq(1)
+
+    delete "/api/v1/items/#{id}"
+
+    expect(Item.count).to eq(1)
+    expect(response.status).to eq(404)
   end
 end

@@ -1,8 +1,10 @@
 class Api::V1::ItemMerchantController < ApplicationController
   def index
-    # binding.pry
-    item = Item.find(params[:item_id])
-    # binding.pry
-    render json: MerchantSerializer.new(item.merchant)
+    if Item.exists?(params[:item_id])
+      item = Item.find(params[:item_id])
+      render json: MerchantSerializer.new(item.merchant)
+    else
+      render :status => 404
+    end
   end
 end
