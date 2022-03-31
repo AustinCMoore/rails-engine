@@ -3,7 +3,7 @@ class Merchant < ApplicationRecord
 
   validates_presence_of(:name)
 
-  # def num_items
-  #   self.items.count
-  # end
+  def self.search_for(name)
+    where("name ilike ?", "%#{name}%").order(:name).first
+  end
 end
