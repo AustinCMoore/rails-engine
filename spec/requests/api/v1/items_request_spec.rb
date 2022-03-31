@@ -61,6 +61,17 @@ RSpec.describe "Items API" do
     expect(item[:data][:attributes][:merchant_id]).to be_an(Integer)
   end
 
+  it "has a 404 error if the merchant id is invalid" do
+    merchant = create(:merchant)
+    item = merchant.items.create!(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = item.id
+    id += 1
+
+    get "/api/v1/items/#{id}"
+
+    expect(response.status).to eq(404)
+  end
+
   it "can create an item" do
     merchant_id = create(:merchant).id
     item_params = ({
