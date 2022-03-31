@@ -353,4 +353,54 @@ RSpec.describe "Items API" do
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
   end
+
+  it "returns null object if no match" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all?name=Z"
+
+    expect(response).to be_successful
+    items = JSON.parse(response.body, symbolize_names: true)
+    expect(items[:data]).to eq([])
+
+    get "/api/v1/items/find_all?max_price=0"
+
+    expect(response).to be_successful
+    items = JSON.parse(response.body, symbolize_names: true)
+    expect(items[:data]).to eq([])
+
+    get "/api/v1/items/find_all?min_price=99999999999"
+
+    expect(response).to be_successful
+    items = JSON.parse(response.body, symbolize_names: true)
+    expect(items[:data]).to eq([])
+
+    get "/api/v1/items/find_all?max_price=1.01&min_price=1.00"
+
+    expect(response).to be_successful
+    items = JSON.parse(response.body, symbolize_names: true)
+    expect(items[:data]).to eq([])
+  end
+
+  it "returns an error for conflicting params" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all?name=Cat&min_price=0.01"
+
+    expect(response.status).to eq(404)
+
+    get "/api/v1/items/find_all?name=Cat&max_price=99999.99"
+
+    expect(response.status).to eq(404)
+
+    get "/api/v1/items/find_all?name=Cat&max_price=99999.99&min_price=0.01"
+
+    expect(response.status).to eq(404)
+  end
 end

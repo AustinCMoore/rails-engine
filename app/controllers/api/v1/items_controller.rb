@@ -66,8 +66,8 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def validate_items(items)
-    if items.nil?
-      render :status => 404
+    if items.empty?
+      render json: {data: []}
     else
       render json: ItemSerializer.new(items)
     end
