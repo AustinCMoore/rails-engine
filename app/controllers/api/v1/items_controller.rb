@@ -12,11 +12,15 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def create
-    item = Item.create(item_params)
-    if item.id.nil?
+    if params[:item].empty?
       render :status => 404
     else
-      render json: ItemSerializer.new(item), status: :created
+      item = Item.create(item_params)
+      if item.id.nil?
+        render :status => 404
+      else
+        render json: ItemSerializer.new(item), status: :created
+      end
     end
   end
 

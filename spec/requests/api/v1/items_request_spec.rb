@@ -117,13 +117,12 @@ RSpec.describe "Items API" do
     expect(response.status).to eq(404)
   end
 
-  xit "has a 404 error if attributes are missing" do
+  it "has a 404 error if attributes are missing" do
     merchant_id = create(:merchant).id
-    item_params = ({
-      })
+    item_params = ({})
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+    post "/api/v1/items", headers: headers
 
     expect(response.status).to eq(404)
   end
@@ -156,15 +155,14 @@ RSpec.describe "Items API" do
     expect(response.status).to eq(404)
   end
 
-  xit "returns 404 with a bad merchant id" do
-    merchant = create(:merchant)
-    merchant_id = merchant.id + 1
+  it "returns 404 with a bad merchant id" do
+    merchant_id = create(:merchant).id
     id = Item.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal, merchant_id: merchant_id).id
-    # previous_name = Item.last.name
-    item_params = { name: "Changed Name" }
+    merchant_id += 1
+    item_params = { merchant_id: merchant_id }
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    patch "/api/v1/items/#{id}"
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
 
     expect(response.status).to eq(404)
   end
