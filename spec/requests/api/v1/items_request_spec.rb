@@ -195,4 +195,28 @@ RSpec.describe "Items API" do
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
+
+  it "returns 404 with a bad id" do
+    merchant = create(:merchant)
+    item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = item.id + 1
+    expect(Item.count).to eq(1)
+
+    delete "/api/v1/items/#{id}"
+
+    expect(Item.count).to eq(1)
+    expect(response.status).to eq(404)
+  end
+
+  it "returns 404 with a string id" do
+    merchant = create(:merchant)
+    item = merchant.items.create(name: Faker::Esport.game, description: Faker::Esport.event, unit_price: Faker::Number.decimal)
+    id = "eleven"
+    expect(Item.count).to eq(1)
+
+    delete "/api/v1/items/#{id}"
+
+    expect(Item.count).to eq(1)
+    expect(response.status).to eq(404)
+  end
 end

@@ -21,7 +21,6 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    # binding.pry
     if Item.exists?(params[:id])
       item = Item.find(params[:id])
       item.update(item_params)
@@ -32,7 +31,11 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def destroy
-    render json: Item.delete(params[:id])
+    if Item.exists?(params[:id])
+      render json: Item.delete(params[:id])
+    else
+      render :status => 404
+    end
   end
 
   private
