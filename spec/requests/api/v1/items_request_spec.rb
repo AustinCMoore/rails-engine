@@ -218,4 +218,16 @@ RSpec.describe "Items API" do
     expect(Item.count).to eq(1)
     expect(response.status).to eq(404)
   end
+
+  it "finds all items based on search criteria" do
+    merchant = create(:merchant)
+    item_1 = merchant.items.create(name: "Ring", description: "This is jewlery", unit_price: 1000.00)
+    item_2 = merchant.items.create(name: "Cat Toy", description: "This is for cats", unit_price: 0.99)
+    item_3 = merchant.items.create(name: "Cat Food", description: "This is for cats", unit_price: 9.99)
+
+    get "/api/v1/items/find_all"
+
+    expect(response).to be_successful
+    
+  end
 end

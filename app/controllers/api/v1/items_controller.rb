@@ -41,6 +41,10 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def find_all
+
+  end
+
   private
 
   def item_params
