@@ -47,4 +47,13 @@ RSpec.describe "Merchants API" do
 
     expect(response.status).to eq(404)
   end
+
+  it "finds one merchant by search criteria" do
+    merchant = create(:merchant)
+
+    get "/api/v1/merchants/find"
+
+    expect(response).to be_successful
+    
+  end
 end
