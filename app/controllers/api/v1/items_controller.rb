@@ -12,15 +12,22 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def create
-    render json: ItemSerializer.new(Item.create!(item_params)), status: :created
+    item = Item.create(item_params)
+    if item.id.nil?
+      render :status => 404
+    else
+      render json: ItemSerializer.new(item), status: :created
+    end
   end
 
   def update
-    item = Item.find(params[:id])
-    if item.update(item_params)
+    # binding.pry
+    if Item.exists?(params[:id])
+      item = Item.find(params[:id])
+      item.update(item_params)
       render json: ItemSerializer.new(item)
     else
-      render :status => 400
+      render :status => 404
     end
   end
 
